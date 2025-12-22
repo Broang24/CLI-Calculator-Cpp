@@ -3,6 +3,8 @@
 #include <array>
 #include <algorithm>
 #include <vector>
+#include <iomanip>
+#include <sstream>
 
 
 // Removing all white space from equation.
@@ -170,6 +172,48 @@ double arithmatic_logic(const std::string& equation){
 }
 
 
+// Formatting the result to a more readable version, getting rid of scientific notation, adding commas every 3 numbers and dealing with decimal numbers properly by not having hanging 0s and to skip all decimal numbers when adding commas.
+std::string format_number(const double& result){
+    std::ostringstream string_stream;
+    std::string formatted_result;
+
+    if(result == floor(result)){
+        string_stream << std::setprecision(0) << std::fixed << result;
+        formatted_result = string_stream.str();
+    }
+    else{
+        string_stream << std::setprecision(6) << std::fixed << result;
+        formatted_result = string_stream.str();
+        while(formatted_result.back() == '0'){
+            formatted_result.pop_back();
+        }
+    }
+
+    int i = 0;
+    if(formatted_result.find('.') == std::string::npos){
+        i = formatted_result.length() - 1;
+    }
+    else{
+        i = formatted_result.find('.') - 1;
+    }
+
+    int counter = 0;
+    while(i >= 0){
+        counter++;
+        if((i == 1 && formatted_result[0] == '-') || i == 0){
+            break;
+        }
+        if(counter == 3){
+            formatted_result.insert(i, ",");
+            counter = 0;
+        }
+        i--;
+    }
+
+    return formatted_result;
+}
+
+
 // Main function dealing with the main loop so user can keep inputting equations and getting the results.
 int main(){
     std::string equation;
@@ -183,12 +227,12 @@ int main(){
         if(equation.empty()){
             continue;
         }
-
+        
         if(equation == "quit" || equation == "exit"){
             std::cout << "Exiting..." << std::endl;
             break;
         }
-
+        
         equation = white_space_remover(equation);
 
         if(invalid_character_checker(equation)){
@@ -201,8 +245,8 @@ int main(){
         if(std::isnan(result)){
             continue;
         }
-        
-        std::cout << " = " << result << '\n';
+
+        std::cout << " = " << format_number(result) << std::endl;
     }
     return 0;
 }
