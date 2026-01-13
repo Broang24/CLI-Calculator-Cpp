@@ -229,7 +229,8 @@ int main(){
     char* user_input = nullptr;
     std::string equation;
     double result;
-    std::cout << "Calculator Program!!\n";
+    std::cout << "CLI Calculator\n";
+    std::cout << "Type 'exit' or 'quit' to exit, 'help' for more info.\n";
 
     while(true){
         free(user_input);
@@ -254,6 +255,21 @@ int main(){
         if(equation == "quit" || equation == "exit"){
             std::cout << "Exiting..." << std::endl;
             break;
+        }
+        
+        if(equation == "help"){
+            std::cout << "\nOperators:\n";
+            std::cout << "  +    Addition\n";
+            std::cout << "  -    Subtraction\n";
+            std::cout << "  *    Multiplication\n";
+            std::cout << "  /    Division\n";
+            std::cout << "  ^    Power\n";
+            std::cout << "  ()   Brackets\n\n";
+            std::cout << "Features:\n";
+            std::cout << "  - Use LEFT arrow and RIGHT arrow keys to edit equations\n";
+            std::cout << "  - Press UP arrow to recall previous equations\n";
+            std::cout << "  - Type 'exit' or 'quit' to exit\n\n";
+            continue;
         }
         
         equation = white_space_remover(equation);
