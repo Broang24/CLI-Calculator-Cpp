@@ -9,7 +9,7 @@
 #include <readline/history.h>
 
 
-// Removing all white space from equation.
+// Removes all white space from equation.
 std::string white_space_remover(const std::string& equation){
     std::string clean_equation;
     for(char character : equation){
@@ -21,15 +21,15 @@ std::string white_space_remover(const std::string& equation){
 }
 
 
-// Checks to see if user inputed a valid characters and did not start or end the equation with arithmatic operators.
+// Checks to see if user entered a valid character and did not start or end the equation with an arithmetic operator.
 bool invalid_character_checker(const std::string& equation){
     std::array<char, 8> valid_operators = {'.', '(', ')', '+', '-', '*', '/', '^'};
-    // Checks to see if user included any characters not valid for the calculator within their equation.
+    // Checks to see if user included any characters to the equation that are not valid for the calculator.
     for(char character : equation){
         if(!isdigit(character) && std::find(valid_operators.begin(), valid_operators.end(), character) == valid_operators.end())
         return true;
     }
-    // Checks to see if user starts or end their equation with an arithmatic operator.
+    // Checks to see if user starts or ends their equation with an arithmetic operator.
     if((!isdigit(equation.front()) && equation.front() != '(' && equation.front() != '-') || (!isdigit(equation.back()) && equation.back() != ')')){
         return true;
     }
@@ -37,17 +37,17 @@ bool invalid_character_checker(const std::string& equation){
 }
 
 
-// Main logic of the entire program, deal with parentheses and deals with the main BODMAS logic.
-double BODMAS(const std::string& equation){
+// Main logic of the entire program, deals with parentheses and main BODMAS logic.
+long double BODMAS(const std::string& equation){
     // Declaring all variables used in the function.
     std::array<char, 6> negative_number_checklist = {'(', '+', '-', '*', '/', '^'};
     std::string number_builder;
-    std::vector<double> numbers;
+    std::vector<long double> numbers;
     std::vector<char> operators;
     std::string nested_equation;
     int nested_depth = 0;
 
-    // Main for loop designed to organize the equation in 2 vectors, a vector of numebers and a vector of operators.
+    // Main for loop designed to organize the equation into 2 vectors, a vector of numbers and a vector of operators.
     for(int i = 0; i < equation.size(); i++){
         bool is_negative_number = equation[i] == '-' && (i == 0 || std::find(negative_number_checklist.begin(), negative_number_checklist.end(), equation[i - 1]) != negative_number_checklist.end());
 
@@ -55,7 +55,7 @@ double BODMAS(const std::string& equation){
             number_builder += equation[i];
         }
         else if(equation[i] == '('){
-            // Nested for loop for dealing with any parentheses, after the for loop is done this else if statement will recall the arithmatic_logic() funciton as a nested call to solve the equation within the parentheses and therefore slot the solution for the parentheses within the numbers vector.
+            // Nested for loop to deal with any parentheses, after the for loop is done this else if statement will recall the BODMAS() function as a nested call to solve the equation within the parentheses and insert the result into the numbers vector.
             if(!number_builder.empty()){
                 std::cout << "Error: Syntax Error\n";
                 return NAN;
@@ -89,7 +89,7 @@ double BODMAS(const std::string& equation){
                 std::cout << "Error: Unmatched Parentheses!\n";
                 return NAN;
             }
-            double nested_solution = BODMAS(nested_equation);
+            long double nested_solution = BODMAS(nested_equation);
             numbers.push_back(nested_solution);
         }
         else if(equation[i] == ')'){
@@ -102,21 +102,21 @@ double BODMAS(const std::string& equation){
                 return NAN;
             }
             else if(!number_builder.empty()){
-                numbers.push_back(std::stod(number_builder));
+                numbers.push_back(std::stold(number_builder));
                 number_builder.clear();
             }
             operators.push_back(equation[i]);
         }
     }
     
-    // Puts last number in the numbers list.
+    // Puts the last number in the numbers vector.
     if(!number_builder.empty()){
-        numbers.push_back(std::stod(number_builder));
+        numbers.push_back(std::stold(number_builder));
     }
 
     
-    // This while loop deals with all power of operators in the equation.
-    double number;
+    // This while loop deals with all power operators in the equation.
+    long double number;
     int i;
     i = operators.size() - 1;
     while(i >= 0){
@@ -178,10 +178,16 @@ double BODMAS(const std::string& equation){
 }
 
 
-// Formatting the result to a more readable version, getting rid of scientific notation, adding commas every 3 numbers and dealing with decimal numbers properly by not having hanging 0s and to skip all decimal numbers when adding commas.
-std::string format_number(const double& result){
+// Formatting the result to make it more human readable, any number that is greater than 1 quadrillion or less than -1 quadrillion stays in scientific notation, any number in between that range will become more verbose with extra styling by adding commas every 3 digits.
+std::string format_number(const long double& result){
     std::ostringstream string_stream;
     std::string formatted_result;
+
+    // Returns formatted result as scientific notation if the number is bigger than 1 quadrillion or less than -1 quadrillion.
+    if(result >= 1e15 || result <= -1e15){
+        string_stream << result;
+        return string_stream.str();
+    }
 
     // Makes the result more verbose.
     if(result == floor(result)){
@@ -206,7 +212,7 @@ std::string format_number(const double& result){
         i = formatted_result.find('.') - 1;
     }
 
-    // Adds commas every 3 numbers.
+    // Adds commas every 3 digits.
     int counter = 0;
     while(i >= 0){
         counter++;
@@ -224,11 +230,11 @@ std::string format_number(const double& result){
 }
 
 
-// Main function dealing with the main loop so user can keep inputting equations and getting the results.
+// Main function that keeps a loop running so the user can continue entering equations and receive results.
 int main(){
     char* user_input = nullptr;
     std::string equation;
-    double result;
+    long double result;
     std::cout << "CLI Calculator\n";
     std::cout << "Type 'exit' or 'quit' to exit, 'help' for more info.\n";
 
